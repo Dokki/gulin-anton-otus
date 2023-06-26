@@ -7,6 +7,7 @@ import { getFoldersTree, visualIterator, validateTree, log } from './helpers'
 const args = yargs(hideBin(process.argv)).default({ depth: 999 })
   .argv as unknown as TArgs
 const projectRoot = resolve(__dirname)
+const isRunByJest = process.mainModule === undefined
 
 /**
  * Функция для отображения в консоле дерева,
@@ -72,6 +73,10 @@ export const run = async (path: string, task: number) => {
       return 'Nothing to show'
   }
 }
-;(async () => {
-  log(await run(args.path, args.task).catch(log))
-})()
+// Нам не нужно запускать функцию если этот файл запустил Jest.
+// А так же что бы как то отображалось в coverage.
+/* istanbul ignore next */
+if (!isRunByJest)
+  (async () => {
+    log(await run(args.path, args.task).catch(log))
+  })()
